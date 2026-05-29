@@ -28,7 +28,7 @@ export const ConfigureWindow = GObject.registerClass({
         this._settings = settings;
         this._devicePath = devicePath;
 
-        const pathsString = settings.get_strv('google-buds-list').map(JSON.parse);
+        const pathsString = this._settings.get_strv('google-buds-list').map(JSON.parse);
         this._settingsItems = pathsString.find(info => info.path === devicePath);
         if (!this._settingsItems)
             return;
@@ -36,7 +36,10 @@ export const ConfigureWindow = GObject.registerClass({
         this.title = this._settingsItems.alias;
 
         const toolViewBar = new Adw.ToolbarView();
-        const headerBar = new Adw.HeaderBar();
+        const headerBar = new Adw.HeaderBar({
+            decoration_layout: ':close',
+            show_end_title_buttons: true,
+        });
         const page = new Adw.PreferencesPage();
 
         toolViewBar.add_top_bar(headerBar);
@@ -115,8 +118,8 @@ export const ConfigureWindow = GObject.registerClass({
             if (preset === EqPreset.CUSTOM)
                 return;
 
-            const bands = preset === EqPreset.LAST_SAVED ?
-                this._settingsItems['eq-last-saved'] : EqPresetBands[preset];
+            const bands = preset === EqPreset.LAST_SAVED
+                ? this._settingsItems['eq-last-saved'] : EqPresetBands[preset];
             this._eq.setValues(bands);
             this._updateGsettings('eq-custom', bands);
         });
@@ -145,8 +148,8 @@ export const ConfigureWindow = GObject.registerClass({
         this._equalizerCustomRow.set_child(this._eq);
         eqGroup.add(this._equalizerCustomRow);
 
-        const settingSignalId = settings.connect('changed::google-buds-list', () => {
-            const updatedList = settings.get_strv('google-buds-list').map(JSON.parse);
+        const settingSignalId = this._settings.connect('changed::google-buds-list', () => {
+            const updatedList = this._settings.get_strv('google-buds-list').map(JSON.parse);
             this._settingsItems = updatedList.find(info => info.path === devicePath);
             if (!this._settingsItems)
                 return;
@@ -162,10 +165,10 @@ export const ConfigureWindow = GObject.registerClass({
             this._eq?.destroy();
             this._eq = null;
 
-            if (settingSignalId && settings)
-                settings.disconnect(settingSignalId);
+            if (settingSignalId && this._settings)
+                this._settings.disconnect(settingSignalId);
 
-            settings = null;
+            this._settings = null;
 
             return false;
         });
@@ -189,9 +192,9 @@ export const ConfigureWindow = GObject.registerClass({
             return staticPreset;
 
         if (JSON.stringify(this._settingsItems['eq-custom']) ===
-                JSON.stringify(this._settingsItems['eq-last-saved'])) {
+                JSON.stringify(this._settingsItems['eq-last-saved']))
             return EqPreset.LAST_SAVED;
-        }
+
 
         return EqPreset.CUSTOM;
     }
