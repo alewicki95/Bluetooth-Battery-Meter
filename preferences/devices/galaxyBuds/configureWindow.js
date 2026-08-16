@@ -97,6 +97,9 @@ export const ConfigureWindow = GObject.registerClass({
             initialCaseIcon,
             mac,
             fw: this._settingsItems['fw-version'],
+            lSn: this._settingsItems['lsn'],
+            rSn: this._settingsItems['rsn'],
+            caseSn: this._settingsItems['csn'],
         });
 
         iconSelector.connect('notify::selected-icon', () => {
@@ -122,7 +125,7 @@ export const ConfigureWindow = GObject.registerClass({
         ];
 
         this._inEarDropdown = new RadioButtonRowWidget({
-            title: _('Choose playback behaviour for Ear detection'),
+            title: _('Choose playback behavior for Ear detection'),
             subtitle: _('Automatically pause or resume playback ' +
                 'based on wearing detection.'),
             options: inEarOptions,
@@ -466,7 +469,7 @@ export const ConfigureWindow = GObject.registerClass({
             quickAmbientSound: _('Quick Ambient Sound'),
             volume: _('Volume Control'),
             ambientSound: _('Ambient Sound'),
-            spotifySpotOn: _('Spotify Spot On'),
+            spotifySpotOn: _('Spotify'),
             noiseControl: _('Noise Control'),
             anc: _('ANC'),
         };
